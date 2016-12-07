@@ -1,14 +1,9 @@
 package spittr;
 
 import java.util.Date;
-import java.util.List;
-
-import spittr.data.SpittleRepository;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.springframework.stereotype.Component;
-
 
 public class Spittle{
 

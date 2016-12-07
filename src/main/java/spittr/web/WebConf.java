@@ -5,6 +5,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.validation.Validator;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -42,5 +44,18 @@ public class WebConf extends WebMvcConfigurerAdapter
 		source.setBasenames("i18n/messages","i18n/ValidationMessages");
 		
 		return source;
+	}
+	
+	@Bean
+	public LocalValidatorFactoryBean validator()
+	{
+		LocalValidatorFactoryBean bean = new LocalValidatorFactoryBean();
+		bean.setValidationMessageSource(messageSource());
+		return bean;
+	}
+	
+	public Validator getValidator()
+	{
+		return validator();
 	}
 }
