@@ -10,7 +10,7 @@ public class Spitter
 	private Long id;
 	
 	@NotNull
-	@Size(min=2, max=5)
+	@Size(min=2, max=5, message="{username.size}")
 	private String username;
 	
 

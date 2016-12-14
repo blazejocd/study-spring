@@ -15,8 +15,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @Import(ThymeleafConfig.class)
 @ComponentScan("spittr.web")
 public class WebConf extends WebMvcConfigurerAdapter
-{
-	
+{	
 	@Override
 	public void configureDefaultServletHandling(
 			DefaultServletHandlerConfigurer configurer)
