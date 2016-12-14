@@ -17,11 +17,11 @@ public class Spitter
 	private String password;
 	
 	@NotNull
-	@Size(min=2, max=5, message="{Size.spitter.firstName}")
+	@Size(min=2, max=5, message="{firstName.size}")
 	private String firstName;
 	
 	@NotNull
-	@Size(min=2, max=5, message="{Size.spitter.lastName}")
+	@Size(min=2, max=5, message="{lastName.size}")
 	private String lastName;
 	
 

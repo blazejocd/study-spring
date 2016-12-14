@@ -2,30 +2,20 @@ package spittr.web;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.*;
 import org.springframework.context.support.ResourceBundleMessageSource;
-import org.springframework.web.servlet.ViewResolver;
+import org.springframework.validation.Validator;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 @Configuration
 @EnableWebMvc
+@Import(ThymeleafConfig.class)
 @ComponentScan("spittr.web")
 public class WebConf extends WebMvcConfigurerAdapter
 {
-	@Bean
-	public ViewResolver viewResolver()
-	{
-		InternalResourceViewResolver resolver =
-				new InternalResourceViewResolver();
-		resolver.setPrefix("/WEB-INF/views/");
-		resolver.setSuffix(".jsp");
-		resolver.setViewClass(org.springframework.web.servlet.view.JstlView.class);
-		return resolver;
-	}
 	
 	@Override
 	public void configureDefaultServletHandling(
@@ -42,5 +32,18 @@ public class WebConf extends WebMvcConfigurerAdapter
 		source.setBasenames("i18n/messages","i18n/ValidationMessages");
 		
 		return source;
+	}
+	
+	@Bean
+	public LocalValidatorFactoryBean validator()
+	{
+		LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
+		validator.setValidationMessageSource(messageSource());
+		return validator;
+	}
+	
+	public Validator getValidator()
+	{
+		return validator();
 	}
 }
