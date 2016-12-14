@@ -1,5 +1,6 @@
 package spittr.config;
 
+import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
@@ -28,9 +29,13 @@ public class SpittrServletInitializer implements WebApplicationInitializer {
 		dispatcherContext.register(WebConf.class);
 		
 		ServletRegistration.Dynamic dispatcher =
-				servletContext.addServlet("dispatcher", new DispatcherServlet(dispatcherContext));
+				servletContext.addServlet(
+						"dispatcher", 
+						new DispatcherServlet(dispatcherContext));
 		dispatcher.setLoadOnStartup(1);
 		dispatcher.addMapping("/");
+		dispatcher.setMultipartConfig(
+				new MultipartConfigElement("/tmp/spittr/uploads"));
 	}
 
 }
