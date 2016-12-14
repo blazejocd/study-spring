@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns="www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	th:fragment="main">
+	<head>
+		<title>Spittr</title>
+		<link type="text/css"
+			rel="stylesheet"
+			th:href="@{/CSS/style.css}"></link>
+	</head>
+	
+	<body>
+		<div th:include="this :: content"></div>
+	</body>
+</html>
