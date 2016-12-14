@@ -2,8 +2,7 @@ package spittr.web;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.*;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
@@ -13,28 +12,13 @@ import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-import org.springframework.web.servlet.view.tiles3.*;
 
 @Configuration
 @EnableWebMvc
+@Import(ThymeleafConfig.class)
 @ComponentScan("spittr.web")
 public class WebConf extends WebMvcConfigurerAdapter
-{
-	@Bean
-	public TilesConfigurer tilesConfigurer()
-	{
-		TilesConfigurer configurer = new TilesConfigurer();
-		configurer.setDefinitions(new String[]{"/WEB-INF/layout/tiles.xml"});
-		configurer.setCheckRefresh(true);
-		return configurer;
-	}
-	
-	@Bean
-	public ViewResolver viewResolver()
-	{
-		return new TilesViewResolver();
-	}
-	
+{	
 	@Override
 	public void configureDefaultServletHandling(
 			DefaultServletHandlerConfigurer configurer)
@@ -55,9 +39,9 @@ public class WebConf extends WebMvcConfigurerAdapter
 	@Bean
 	public LocalValidatorFactoryBean validator()
 	{
-		LocalValidatorFactoryBean bean = new LocalValidatorFactoryBean();
-		bean.setValidationMessageSource(messageSource());
-		return bean;
+		LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
+		validator.setValidationMessageSource(messageSource());
+		return validator;
 	}
 	
 	public Validator getValidator()
