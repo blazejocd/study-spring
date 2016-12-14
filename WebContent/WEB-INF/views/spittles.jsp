@@ -14,7 +14,10 @@
         <c:forEach items="${spittleList}" var="spittle" >
           <li id="spittle_<c:out value="spittle.id"/>">
             <div class="spittleMessage">
-            	<a href="<s:url value="/spittles/show/${spittle.id}" />" title="show one spittle">
+            	<s:url value="/spittles/show/{spittle}" var="spittleUrl">
+            		<s:param name="spittle" value="${spittle.id}" />
+            	</s:url>
+            	<a href="${spittleUrl}" title="show one spittle">
             		<c:out value="${spittle.message}" />
 				</a>
 			</div>

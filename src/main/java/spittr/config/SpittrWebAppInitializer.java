@@ -1,5 +1,8 @@
 package spittr.config;
 
+import javax.servlet.MultipartConfigElement;
+import javax.servlet.ServletRegistration.Dynamic;
+
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 import spittr.web.WebConf;
 
@@ -20,5 +23,10 @@ extends AbstractAnnotationConfigDispatcherServletInitializer
 	@Override
 	protected Class<?>[] getServletConfigClasses() {
 		return new Class<?>[] {WebConf.class};
+	}
+	
+	@Override
+	protected void customizeRegistration(Dynamic registration) {
+		registration.setMultipartConfig(new MultipartConfigElement("/tmp"));
 	}
 }
