@@ -6,7 +6,42 @@
 </head>
 <body>
 	<div th:fragment="content">
-		<h1>Form</h1>
+		<form method="POST" th:object="${spitter}">
+			<div class="errors" th:if="${#fields.hasErrors('*')}">
+				<ul>
+					<li th:each="err : ${#fields.errors('*')}" th:text="${err}">
+					Dane wejściowe są niepoprawne
+					</li>
+				</ul>
+			</div>
+			
+			<label th:text="#{spittr.register.firstName}"
+			th:class="${#fields.hasErrors('firstName')} ? 'error'"></label>
+			<input type="text" th:field="*{firstName}"
+			th:class="${#fields.hasErrors('firstName')} ? 'error'" /><br />
+			
+			<label th:text="#{spittr.register.lastName}"
+			th:class="${#fields.hasErrors('lastName')} ? 'error'"></label>
+			<input type="text" th:field="*{lastName}"
+			th:class="${#fields.hasErrors('lastName')} ? 'error'" /><br />
+			
+			<label th:text="#{spittr.register.email}"
+			th:class="${#fields.hasErrors('email')} ? 'error'"></label>
+			<input type="text" th:field="*{email}"
+			th:class="${#fields.hasErrors('email')} ? 'error'" /><br />
+			
+			<label th:text="#{spittr.register.username}"
+			th:class="${#fields.hasErrors('username')} ? 'error'"></label>
+			<input type="text" th:field="*{username}"
+			th:class="${#fields.hasErrors('username')} ? 'error'" /><br />
+			
+			<label th:text="#{spittr.register.password}"
+			th:class="${#fields.hasErrors('password')} ? 'error'"></label>
+			<input type="password" th:field="*{password}"
+			th:class="${#fields.hasErrors('password')} ? 'error'" /><br />
+			
+			<input type="submit" th:value="#{spittr.register.submit}" />
+		</form>
 	</div>
 </body>
 </html>
