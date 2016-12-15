@@ -35,7 +35,7 @@ public class SpittrServletInitializer implements WebApplicationInitializer {
 		dispatcher.setLoadOnStartup(1);
 		dispatcher.addMapping("/");
 		dispatcher.setMultipartConfig(
-				new MultipartConfigElement("/tmp/spittr/uploads"));
+				new MultipartConfigElement(servletContext.getRealPath("/images")));
 	}
 
 }

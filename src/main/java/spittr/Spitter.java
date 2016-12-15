@@ -3,6 +3,7 @@ package spittr;
 import javax.validation.constraints.*;
 import org.apache.commons.lang3.builder.*;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 @Component
 public class Spitter 
@@ -24,8 +25,10 @@ public class Spitter
 	@Size(min=2, max=5, message="{lastName.size}")
 	private String lastName;
 	
-
+	@NotNull
 	private String email;
+	
+	private MultipartFile profilePicture;
 	
 	public Spitter() {}
 	
@@ -95,6 +98,16 @@ public class Spitter
 	  
 	  public void setEmail(String email) {
 	    this.email = email;
+	  }
+	  
+	  public MultipartFile getProfilePicture()
+	  {
+		  return this.profilePicture;
+	  }
+	  
+	  public void setProfilePicture(MultipartFile profilePicture)
+	  {
+		  this.profilePicture = profilePicture;
 	  }
 	  
 	  @Override

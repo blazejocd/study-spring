@@ -1,5 +1,6 @@
 package spittr.web;
 
+import javax.servlet.ServletContext;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +9,13 @@ import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
+
 import static org.springframework.web.bind.annotation.RequestMethod.*;
+
+import java.io.File;
+import java.io.IOException;
 
 import spittr.Spitter;
 import spittr.data.*;
@@ -33,13 +40,16 @@ public class SpitterController
 	
 	@RequestMapping(value="/register", method=POST)
 	public String saveSpitter(
+			@RequestPart("profilePicture") byte[] profilePicture,
 			@Valid Spitter spitter,
-			Errors errors)
+			Errors errors) throws IOException
 	{
 		if (errors.hasErrors()) {
 			return "registerForm";
 		}
 		repo.save(spitter);
+		saveFile(spitter.getProfilePicture(), spitter.getUsername());
+		
 		return "redirect:/spitter/" +spitter.getUsername();
 	}
 	
@@ -50,5 +60,12 @@ public class SpitterController
 		Spitter spitter = this.repo.findByName(userName);
 		model.addAttribute(spitter);
 		return "profile";
+	}
+	
+	private void saveFile(
+			MultipartFile file, 
+			String fileName) throws IOException
+	{
+		file.transferTo(new File(fileName +".jpg"));
 	}
 }
