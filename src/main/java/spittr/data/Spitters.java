@@ -16,7 +16,8 @@ public class Spitters implements SpitterRepository
 
 	@Override
 	public Spitter findByName(String name) {
-		return new Spitter(24L,name, "mypass","Arkadiusz", "Kocik", "arek.kocik@ui.com");
+		// commented to show how exceptions work return new Spitter(24L,name, "mypass","Arkadiusz", "Kocik", "arek.kocik@ui.com");
+		return null;
 	}
 
 }

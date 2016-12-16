@@ -19,6 +19,7 @@ import java.io.IOException;
 
 import spittr.Spitter;
 import spittr.data.*;
+import spittr.exceptions.SpitterNotFoundException;
 
 @Controller
 @RequestMapping("/spitter")
@@ -58,8 +59,11 @@ public class SpitterController
 			@PathVariable String userName, Model model)
 	{
 		Spitter spitter = this.repo.findByName(userName);
+		if (spitter == null) {
+			throw new SpitterNotFoundException();
+		}
 		model.addAttribute(spitter);
-		return "profile";
+		return "profile/profile";
 	}
 	
 	private void saveFile(
