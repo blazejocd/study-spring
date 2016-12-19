@@ -44,7 +44,8 @@ public class SpitterController
 	public String saveSpitter(
 			@RequestPart("profilePicture") byte[] profilePicture,
 			@Valid Spitter spitter,
-			Errors errors, RedirectAttributes model) throws IOException
+			Errors errors, 
+			RedirectAttributes model) throws IOException
 	{
 		if (errors.hasErrors()) {
 			return "registerForm";
