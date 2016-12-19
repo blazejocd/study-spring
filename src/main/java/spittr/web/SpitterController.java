@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
@@ -43,13 +44,14 @@ public class SpitterController
 	public String saveSpitter(
 			@RequestPart("profilePicture") byte[] profilePicture,
 			@Valid Spitter spitter,
-			Errors errors) throws IOException
+			Errors errors, RedirectAttributes model) throws IOException
 	{
 		if (errors.hasErrors()) {
 			return "registerForm";
 		}
 		repo.save(spitter);
 		saveFile(spitter.getProfilePicture(), spitter.getUsername());
+		model.addFlashAttribute(spitter);
 		
 		return "redirect:/spitter/" +spitter.getUsername();
 	}
@@ -58,11 +60,13 @@ public class SpitterController
 	public String showUser(
 			@PathVariable String userName, Model model)
 	{
-		Spitter spitter = this.repo.findByName(userName);
-		if (spitter == null) {
-			throw new SpitterNotFoundException();
+		if (!model.containsAttribute("spitter")) {
+			Spitter spitter = this.repo.findByName(userName);
+			if (spitter == null) {
+				throw new SpitterNotFoundException();
+			}
+			model.addAttribute(spitter);
 		}
-		model.addAttribute(spitter);
 		return "profile/profile";
 	}
 	
