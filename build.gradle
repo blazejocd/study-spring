@@ -45,3 +45,9 @@ eclipse {
         }
     }
 }
+
+test {
+    testLogging {
+        events "passed", "skipped", "failed", "standardOut"
+    }
+}
