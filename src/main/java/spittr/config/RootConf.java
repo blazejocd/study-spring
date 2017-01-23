@@ -5,6 +5,7 @@ import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.web.servlet.config.annotation.*;
 
 @Configuration
+@Import(DataConf.class)
 @ComponentScan(
 		basePackages={"spittr"},
 		excludeFilters={
