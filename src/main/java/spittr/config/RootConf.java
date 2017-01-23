@@ -6,7 +6,7 @@ import org.springframework.web.servlet.config.annotation.*;
 
 @Configuration
 @ComponentScan(
-		basePackages={"spittr.data"},
+		basePackages={"spittr"},
 		excludeFilters={
 			@Filter(type=FilterType.ANNOTATION, value=EnableWebMvc.class)
 		}
