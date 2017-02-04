@@ -29,10 +29,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter
 		auth
 			.jdbcAuthentication()
 			.dataSource(dataSource)
-			.usersByUsernameQuery("SELECT username,password,true"
-					+ " FROM Spitter WHERE username=?")
-			.authoritiesByUsernameQuery("SELECT username,'ROLE_USER'"
-					+ " FROM Spitter WHERE username=?")
+			.usersByUsernameQuery("SELECT name,password,true"
+					+ " FROM users WHERE name=?")
+			.authoritiesByUsernameQuery("SELECT name,'ROLE_USER'"
+					+ " FROM users WHERE name=?")
 			.passwordEncoder(new StandardPasswordEncoder("1234"));
+	}
+	
+	protected void configure(HttpSecurity http) throws Exception
+	{
+		http
+			.formLogin()
+			.and()
+			.authorizeRequests()
+				.antMatchers("/spitter/register").anonymous()
+				.antMatchers("/spitter/**").authenticated()
+				.anyRequest().permitAll();
 	}
 }
