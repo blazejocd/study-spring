@@ -6,5 +6,5 @@ public interface SpitterRepository
 {
 	Spitter save(Spitter spitter);
 	
-	Spitter findByName(String name);
+	Spitter findByUsername(String name);
 }

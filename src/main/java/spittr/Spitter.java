@@ -8,24 +8,26 @@ import org.springframework.web.multipart.MultipartFile;
 @Component
 public class Spitter 
 {
-	private Long id;
+	private Long id = null;
 	
 	@NotNull
-	@Size(min=2, max=5, message="{username.size}")
+	@Size(min=3, max=25, message="{username.size}")
 	private String username;
 	
-
+	@NotNull
+	@Size(min=3, max=10)
 	private String password;
 	
 	@NotNull
-	@Size(min=2, max=5, message="{firstName.size}")
+	@Size(min=2, max=25, message="{firstName.size}")
 	private String firstName;
 	
 	@NotNull
-	@Size(min=2, max=5, message="{lastName.size}")
+	@Size(min=2, max=25, message="{lastName.size}")
 	private String lastName;
 	
 	@NotNull
+	@Size(min=5, max=25, message="{email.size}")
 	private String email;
 	
 	private MultipartFile profilePicture;
@@ -58,6 +60,14 @@ public class Spitter
 	
 	public Long getId() {
 		return this.id;
+	}
+	
+	public boolean hasId()
+	{
+		if (null != this.id) {
+			return true;
+		}
+		return false;
 	}
 	
 	public void setUsername(String u) {

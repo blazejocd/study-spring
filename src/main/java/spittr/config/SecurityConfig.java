@@ -29,10 +29,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter
 		auth
 			.jdbcAuthentication()
 			.dataSource(dataSource)
-			.usersByUsernameQuery("SELECT name,password,true"
-					+ " FROM users WHERE name=?")
-			.authoritiesByUsernameQuery("SELECT name,'ROLE_USER'"
-					+ " FROM users WHERE name=?")
+			.usersByUsernameQuery("SELECT username,password,true"
+					+ " FROM users WHERE username=?")
+			.authoritiesByUsernameQuery("SELECT username,'ROLE_USER'"
+					+ " FROM users WHERE username=?")
 			.passwordEncoder(new StandardPasswordEncoder("1234"));
 	}
 	

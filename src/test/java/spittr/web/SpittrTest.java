@@ -106,7 +106,7 @@ public class SpittrTest
 	{
 		SpitterRepository mockRepo = mock(SpitterRepository.class);
 		Spitter expectedSpitter = new Spitter(18L, "bolo1", "23245yge","Jerzy","Kochanowski","jerzyk@wp.pl");
-		when(mockRepo.findByName("bolo1")).thenReturn(expectedSpitter);
+		when(mockRepo.findByUsername("bolo1")).thenReturn(expectedSpitter);
 		
 		SpitterController controller = new SpitterController(mockRepo);
 		MockMvc mockMvc = standaloneSetup(controller).build();

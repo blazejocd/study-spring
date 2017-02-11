@@ -1,6 +1,5 @@
 package spittr.web;
 
-import javax.servlet.ServletContext;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,11 +49,16 @@ public class SpitterController
 		if (errors.hasErrors()) {
 			return "registerForm";
 		}
-		repo.save(spitter);
-		saveFile(spitter.getProfilePicture(), spitter.getUsername());
-		model.addFlashAttribute(spitter);
-		
-		return "redirect:/spitter/" +spitter.getUsername();
+		if (null != this.repo.save(spitter)) 
+		{
+			saveFile(spitter.getProfilePicture(), spitter.getUsername());
+			model.addFlashAttribute(spitter);
+			
+			return "redirect:/spitter/" +spitter.getUsername();
+		}
+		else {
+			return "registerForm";
+		}
 	}
 	
 	@RequestMapping(value="/{userName}", method=GET)
@@ -62,7 +66,7 @@ public class SpitterController
 			@PathVariable String userName, Model model)
 	{
 		if (!model.containsAttribute("spitter")) {
-			Spitter spitter = this.repo.findByName(userName);
+			Spitter spitter = this.repo.findByUsername(userName);
 			if (spitter == null) {
 				throw new SpitterNotFoundException();
 			}

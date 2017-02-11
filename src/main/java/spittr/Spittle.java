@@ -5,7 +5,8 @@ import java.util.Date;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-public class Spittle{
+public class Spittle
+{
 
   private Long id;
   private String message;
