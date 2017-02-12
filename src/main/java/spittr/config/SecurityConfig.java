@@ -42,7 +42,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter
 			.formLogin()
 			.and()
 			.authorizeRequests()
-				.antMatchers("/spitter/register").anonymous()
+				.antMatchers("/spitter/register").permitAll()
 				.antMatchers("/spitter/**").authenticated()
 				.anyRequest().permitAll();
 	}

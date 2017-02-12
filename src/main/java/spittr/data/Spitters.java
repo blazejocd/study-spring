@@ -2,9 +2,10 @@ package spittr.data;
 
 import java.sql.*;
 
-import javax.sql.DataSource;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcOperations;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.crypto.password.StandardPasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -12,15 +13,10 @@ import spittr.Spitter;
 
 @Component
 public class Spitters implements SpitterRepository 
-{
-	@Autowired
-	private DataSource dataSource;
+{	
+	private JdbcOperations jdbcOperations;
 	
-	private Connection conn;
-	
-	private PreparedStatement stmt;
-	
-	private static final String SEARCH_SQL =
+	private static final String SEARCH_BY_USERNAME_SQL =
 			"SELECT * FROM users WHERE username = ?";
 	
 	private static final String INSERT_SQL = 
@@ -29,134 +25,75 @@ public class Spitters implements SpitterRepository
 	private static final String UPDATE_SQL = 
 			"UPDATE users SET username = ?, password = ?, firstName = ?, lastName = ?, email = ? WHERE id = ?";
 
-	
-	public Spitters()
+	@Autowired
+	public Spitters(JdbcOperations jdbcOps)
 	{
-		this.conn = null;
-		this.stmt = null;
+		this.jdbcOperations = jdbcOps;
 	}
 	
 	@Override
 	public Spitter save(Spitter spitter)
 	{
 		Spitter existingSpitter = this.findByUsername(spitter.getUsername());
-		
-		try
+		if (null == existingSpitter)
 		{
-			conn = this.dataSource.getConnection();
-			
-			if (null == existingSpitter) {
-				stmt = conn.prepareStatement(INSERT_SQL);
-				this.bindParameters(spitter, null);
-			}
-			else
-			{
-				stmt = conn.prepareStatement(UPDATE_SQL);
-				this.bindParameters(spitter, existingSpitter);
-			}
-			stmt.execute();
-			
-			Spitter newSpitter = this.findByUsername(spitter.getUsername());
-			if (null != newSpitter) {
-				return newSpitter;
-			}
-			
-		} catch (SQLException e) {
+			this.jdbcOperations.update(
+				INSERT_SQL,
+				spitter.getUsername(),
+				new StandardPasswordEncoder("1234")
+					.encode(spitter.getPassword()),
+				spitter.getFirstName(),
+				spitter.getLastName(),
+				spitter.getEmail());
 		}
-		finally {
-			try {
-				if (null != stmt) {
-					stmt.close();
-				}
-				if (null != conn) {
-					conn.close();
-				}
-			}
-			catch (SQLException e) {
-				e.printStackTrace();
-			}
+		else
+		{
+			this.jdbcOperations.update(
+				UPDATE_SQL,
+				spitter.getUsername(),
+				new StandardPasswordEncoder("1234")
+					.encode(spitter.getPassword()),
+				spitter.getFirstName(),
+				spitter.getLastName(),
+				spitter.getEmail(),
+				existingSpitter.getId());
 		}
-		
-		
+			
+		Spitter newSpitter = this.findByUsername(spitter.getUsername());
+		if (null != newSpitter) {
+			return newSpitter;
+		}
 		return null;
 	}
 
 	@Override
 	public Spitter findByUsername(String username)
 	{
-		Spitter spitter = new Spitter();
-		
-		try
-		{
-			conn = dataSource.getConnection();
-			stmt = conn.prepareStatement(SEARCH_SQL);
-			this.bindParameters(username);
-			
-			ResultSet rs = stmt.executeQuery();
-			if (false == rs.first()) {
-				return null;
-			}
-			else 
-			{
-				spitter.setId(rs.getLong("id"));
-				spitter.setUsername(rs.getString("username"));
-				spitter.setPassword("IT IS SECRET");
-				spitter.setFirstName(rs.getString("firstName"));
-				spitter.setLastName(rs.getString("lastName"));
-				spitter.setEmail(rs.getString("email"));
-			}
-		}
-		catch (SQLException e) {
-			e.printStackTrace();
-		}
-		finally 
-		{
-			try {
-				if (null != stmt) {
-					stmt.close();
-				}
-				if (null != conn) {
-					conn.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		if (spitter.hasId()) {
-			return spitter;
-		}
-		
-		return null;
-	}
-	
-	private void bindParameters(Spitter newSpitter, Spitter existingSpitter)
-	{
-		try
-		{
-			stmt.setString(1, newSpitter.getUsername());
-			stmt.setString(2,
-				new StandardPasswordEncoder("1234").encode(newSpitter.getPassword()));
-			stmt.setString(3, newSpitter.getFirstName());
-			stmt.setString(4, newSpitter.getLastName());
-			stmt.setString(5, newSpitter.getEmail());
-			
-			if (null != existingSpitter) {
-				stmt.setLong(6, existingSpitter.getId());
-			}
-		}
-		catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	private void bindParameters(String username)
-	{
 		try {
-			stmt.setString(1, username);
-		} catch (SQLException e) {
-			e.printStackTrace();
+			Spitter spitter = this.jdbcOperations.queryForObject(
+					SEARCH_BY_USERNAME_SQL, 
+					new SpitterRowMapper(), 
+					username);
+			return spitter;
+		} catch (DataAccessException e) 
+		{
+			return null;
 		}
 	}
+}
 
+final class SpitterRowMapper implements RowMapper<Spitter>
+{
+	@Override
+	public Spitter mapRow(ResultSet rs, int rowNum) throws SQLException 
+	{
+		return new Spitter(
+				rs.getLong("id"),
+				rs.getString("username"),
+				rs.getString("password"),
+				rs.getString("firstName"),
+				rs.getString("lastName"),
+				rs.getString("email"));
+	}
+	
 }
