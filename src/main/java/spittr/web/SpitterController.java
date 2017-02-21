@@ -70,7 +70,10 @@ public class SpitterController
 			if (spitter == null) {
 				throw new SpitterNotFoundException();
 			}
+			Spitter[] allSpitters = this.repo.findAllSpitters();
+			
 			model.addAttribute(spitter);
+			model.addAttribute("allSpitters",allSpitters);
 		}
 		return "profile/profile";
 	}

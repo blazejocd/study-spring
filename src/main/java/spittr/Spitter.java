@@ -1,13 +1,26 @@
 package spittr;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.*;
 import org.apache.commons.lang3.builder.*;
-import org.springframework.stereotype.Component;
+import org.hibernate.Session;
+import org.hibernate.annotations.GenerationTime;
+import org.hibernate.annotations.GeneratorType;
+import org.hibernate.tuple.ValueGenerator;
+import org.springframework.security.crypto.password.StandardPasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
-@Component
+@Entity(name = "Spitter")
+@Table(name = "users")
 public class Spitter 
 {
+	@Id
+	@GeneratedValue (strategy = GenerationType.IDENTITY)
 	private Long id = null;
 	
 	@NotNull
@@ -16,6 +29,7 @@ public class Spitter
 	
 	@NotNull
 	@Size(min=3, max=10)
+	@GeneratorType(type = SpitterPasswordEncoder.class, when = GenerationTime.ALWAYS)
 	private String password;
 	
 	@NotNull
@@ -30,6 +44,7 @@ public class Spitter
 	@Size(min=5, max=25, message="{email.size}")
 	private String email;
 	
+	@Transient
 	private MultipartFile profilePicture;
 	
 	public Spitter() {}
@@ -133,4 +148,17 @@ public class Spitter
 		  return HashCodeBuilder.reflectionHashCode(this,
 				  "username","password","firstName","lastName","email");
 	  }
+}
+
+class SpitterPasswordEncoder implements ValueGenerator<String>
+{
+
+	@Override
+	public String generateValue(Session session, Object owner)
+	{
+		Spitter spitter = (Spitter) owner;
+		StandardPasswordEncoder passEncoder = new StandardPasswordEncoder("1234");
+		return passEncoder.encode(spitter.getPassword());
+	}
+	
 }

@@ -10,7 +10,16 @@
 		<h2>
 			<span th:text="#{spittr.welcomeHeader}"></span>
 			<span th:text="${spitter.username}"></span>
-		</h2>	
+		</h2>
+		
+		<h3>The rest of spitters in this service:</h3>
+		<ul>
+			<li th:each="spitElem : ${allSpitters}">
+				<span th:text="${spitElem.firstName}"></span>&nbsp;
+				<span th:text="${spitElem.lastName} +' - '"></span>
+				<span th:text="${spitElem.email}"></span>
+			</li>
+		</ul>
 	</div>
 </body>
 </html>

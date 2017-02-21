@@ -1,128 +1,87 @@
 package spittr.data;
 
-import java.sql.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.Set;
+import javax.persistence.EntityExistsException;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Tuple;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Root;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.security.crypto.password.StandardPasswordEncoder;
-import org.springframework.stereotype.Component;
-
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import spittr.Spitter;
+import spittr.exceptions.SpitterAlreadyExists;
 
-@Component
+@Repository
+@Transactional
 public class Spitters implements SpitterRepository 
-{	
-	private NamedParameterJdbcTemplate jdbcOperations;
-	
-	private Map<String, Object> params;
-	
-	private static final String SEARCH_BY_USERNAME_SQL =
-			"SELECT * FROM users WHERE username = :username";
-	
-	private static final String INSERT_SQL = 
-			"INSERT INTO users (username, password, firstName, lastName, email) "
-			+"VALUES (:username,:password,:firstName,:lastName,:email)";
-	
-	private static final String UPDATE_SQL = 
-			"UPDATE users SET username = :username, password = :password, "
-			+"firstName = :firstName, lastName = :lastName, email = :email WHERE id = :id";
-	
-	private static final String PRIVATE_ENCODE_KEY = "1234";
-
-	@Autowired
-	public Spitters(NamedParameterJdbcOperations jdbcOps)
-	{
-		this.jdbcOperations = (NamedParameterJdbcTemplate) jdbcOps;
-		this.params = new HashMap<>();
-	}
-
-	@Override
-	public Spitter findByUsername(String username)
-	{
-		this.params.clear();
-		this.params.put("username", username);
-		
-		try {
-			Spitter spitter = this.jdbcOperations.queryForObject(
-					SEARCH_BY_USERNAME_SQL,
-					this.params,
-					new SpitterRowMapper());
-			return spitter;
-		} catch (DataAccessException e) 
-		{
-			return null;
-		}
-	}
-	
-	public int addSpitter(Spitter spitter)
-	{
-		params.clear();
-		params.put("username", spitter.getUsername());
-		params.put("password", this.encodePassword(spitter.getPassword()));
-		params.put("firstName", spitter.getFirstName());
-		params.put("lastName", spitter.getLastName());
-		params.put("email", spitter.getEmail());
-		
-		return this.jdbcOperations.update(INSERT_SQL, params);
-	}
-	
-	public int updateSpitter(Spitter spitter, Long id)
-	{
-		params.clear();
-		params.put("id", id);
-		params.put("username", spitter.getUsername());
-		params.put("password", this.encodePassword(spitter.getPassword()));
-		params.put("firstName", spitter.getFirstName());
-		params.put("lastName", spitter.getLastName());
-		params.put("email", spitter.getEmail());
-		
-		return this.jdbcOperations.update(UPDATE_SQL, params);
-	}
-	
-	@Override
-	public Spitter save(Spitter spitter)
-	{
-		Spitter existingSpitter = this.findByUsername(spitter.getUsername());
-		if (null == existingSpitter)
-		{
-			this.addSpitter(spitter);
-		}
-		else
-		{
-			this.updateSpitter(spitter, existingSpitter.getId());
-		}
-			
-		Spitter newSpitter = this.findByUsername(spitter.getUsername());
-		if (null != newSpitter) {
-			return newSpitter;
-		}
-		return null;
-	}
-	
-	private String encodePassword(String password)
-	{
-		return new StandardPasswordEncoder(PRIVATE_ENCODE_KEY)
-				.encode(password);
-	}
-}
-
-final class SpitterRowMapper implements RowMapper<Spitter>
 {
+	@PersistenceContext
+	private EntityManager em;
+	
 	@Override
-	public Spitter mapRow(ResultSet rs, int rowNum) throws SQLException 
+	public Spitter save(Spitter spitter) 
 	{
-		return new Spitter(
-				rs.getLong("id"),
-				rs.getString("username"),
-				rs.getString("password"),
-				rs.getString("firstName"),
-				rs.getString("lastName"),
-				rs.getString("email"));
+		try {
+			em.persist(spitter);
+			return spitter;
+		} catch (EntityExistsException e) {
+			throw new SpitterAlreadyExists();
+		}
+	}
+
+	@Override
+	public Spitter findByUsername(String name) 
+	{
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Spitter> criteria = cb.createQuery(Spitter.class);
+		Root<Spitter> root = criteria.from(Spitter.class);
+		criteria.select(root);
+		criteria.where(cb.equal(root.<Set<String>>get("username"), name));
+		Spitter result = em.createQuery(criteria).getSingleResult();
+		
+		return result;
+	}
+
+	@Override
+	public Spitter findSpitterById(Long id) 
+	{
+		return em.find(Spitter.class, id);
+	}
+
+	@Override
+	public Spitter[] findAllSpitters() 
+	{
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Tuple> criteria = cb.createTupleQuery();
+		Root<Spitter> root = criteria.from(Spitter.class);
+		
+		Path<String> firstNamePath = root.get("firstName");
+		Path<String> lastNamePath = root.get("lastName");
+		Path<String> emailPath = root.get("email");
+		
+		criteria.multiselect(firstNamePath, lastNamePath, emailPath);
+		List<Tuple> results = em.createQuery(criteria).getResultList();
+		
+		return this.iterateOverTuple(results, firstNamePath, lastNamePath, emailPath);
 	}
 	
+	private Spitter[] iterateOverTuple(List<Tuple> tuples, Path<String>...paths)
+	{
+		Spitter[] spitters = new Spitter[tuples.size()];
+		for (int i=0; i < tuples.size(); i++)
+		{
+			Tuple tuple = tuples.get(i);
+			Spitter spitter = new Spitter();
+			spitter.setFirstName((String) tuple.get(paths[0]));
+			spitter.setLastName((String) tuple.get(paths[1]));
+			spitter.setEmail((String) tuple.get(paths[2]));
+			spitters[i] = spitter;
+		}
+		return spitters;
+	}
 }
